@@ -22,7 +22,7 @@ int main (int argc, const char *argv[])
     //Lock named mutex
     boost::interprocess::scoped_lock<boost::interprocess::named_mutex> lock(mutex);
 
-    std::string command = "sudo python /home/pi/Projects/alexa_node/sinric.py";
+    std::string command = "python /home/pi/Projects/alexa_node/sinric.py";
 
     //Execute python script: TTS and audio download
     system(command.c_str());

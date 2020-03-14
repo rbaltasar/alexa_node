@@ -19,6 +19,7 @@ reminder_id = "5ce920e325b3d3191b7be2e4"
 ngrok_tunnel = "5d0fc7cc1b911b7049eb7b5b"
 music_node = "5d223a577bdf2c2c0409ecb2"
 mini_music_node = "5d58324d1bddb66e3639f4a2"
+christmas = "5ddace00478df635925fe701"
 
 class HSV2RGB:
     
@@ -79,12 +80,12 @@ def handle_lamp_request(request):
 
     if(action == "setPowerState"):
         if(value == "ON"):
-            client.publish("lamp_network/mode_request", "{\"mode\":\"1\",\"id_mask\":255}")
-	    client.publish("lamp_network/mode_request_feedback", "{\"mode\":\"1\",\"id_mask\":255}")
+            client.publish("lamp_network/mode_request", "{\"mode\":\"1\",\"id_mask\":15}")
+            client.publish("lamp_network/mode_request_feedback", "{\"mode\":\"1\",\"id_mask\":15}")
             print("Switching lamp ON")
         else:
-            client.publish("lamp_network/mode_request", "{\"mode\":\"0\",\"id_mask\":255}")
-	    client.publish("lamp_network/mode_request_feedback", "{\"mode\":\"0\",\"id_mask\":255}")
+            client.publish("lamp_network/mode_request", "{\"mode\":\"0\",\"id_mask\":63}")
+            client.publish("lamp_network/mode_request_feedback", "{\"mode\":\"0\",\"id_mask\":63}")
             print("Switching lamp OFF")
 
     elif(action == "SetColor"):
@@ -103,6 +104,16 @@ def handle_lamp_request(request):
 
         message = json.dumps({'intensity': int(request["value"]/10),'id_mask': 255})
         client.publish("lamp_network/light_intensity", message)
+
+    elif(action == "AdjustBrightness"):
+        if((int(request["value"]) < 0)):
+            print("Sending decrease message")
+            message = json.dumps({'intensity': 0,'id_mask': 255})
+            client.publish("lamp_network/light_intensity_decrease", message)
+        else:
+            print("Sending increase message")
+            message = json.dumps({'intensity': 0,'id_mask': 255})
+            client.publish("lamp_network/light_intensity_increase", message)
 
 
 def handle_bedroom_request(request):
@@ -215,6 +226,21 @@ def handle_mini_music_node_request(request):
             client.publish("music_node/start", "1")
             print("Starting mini music node")
 
+def handle_christmas_request(request):
+
+    action = request["action"]
+    value = request["value"]
+
+    if(action == "setPowerState"):
+        if(value == "ON"):
+            client.publish("lamp_network/mode_request", "{\"mode\":\"1\",\"id_mask\":64}")
+            client.publish("lamp_network/mode_request_feedback", "{\"mode\":\"1\",\"id_mask\":64}")
+            print("Switching christmas ON")
+        else:
+            client.publish("lamp_network/mode_request", "{\"mode\":\"0\",\"id_mask\":64}")
+            client.publish("lamp_network/mode_request_feedback", "{\"mode\":\"0\",\"id_mask\":64}")
+            print("Switching christmas OFF")
+
 
 def on_message(ws, message):
 
@@ -240,6 +266,8 @@ def on_message(ws, message):
         handle_music_node_request(j)
     elif(deviceId == mini_music_node):
         handle_mini_music_node_request(j)
+    elif(deviceId == christmas):
+        handle_christmas_request(j)
 
 def on_error(ws, error):
     print error

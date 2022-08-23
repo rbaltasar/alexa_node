@@ -5,7 +5,7 @@ import paho.mqtt.client as paho
 import json
 import credentials
 
-mptt_client= paho.Client("Test")
+mqtt_client= paho.Client("Test")
 
 APP_KEY = 'd0d861a1-9302-403a-98ca-fd79304c040f'
 APP_SECRET = '396f2c38-c5dc-40ca-aa19-a6ab38a2180e-9a18e27d-da3e-463a-9e95-711cd9e2b3b8'
@@ -16,12 +16,12 @@ def power_state(did, state):
     print(did, state)
 
     if(state == "On"):
-        mptt_client.publish("lamp_network/mode_request", "{\"mode\":\"1\",\"id_mask\":255}")
-        mptt_client.publish("lamp_network/mode_request_feedback", "{\"mode\":\"1\",\"id_mask\":255}")
+        mqtt_client.publish("lamp_network/mode_request", "{\"mode\":\"1\",\"id_mask\":255}")
+        mqtt_client.publish("lamp_network/mode_request_feedback", "{\"mode\":\"1\",\"id_mask\":255}")
         print("Switching lamp ON")
     else:
-        mptt_client.publish("lamp_network/mode_request", "{\"mode\":\"0\",\"id_mask\":255}")
-        mptt_client.publish("lamp_network/mode_request_feedback", "{\"mode\":\"0\",\"id_mask\":255}")
+        mqtt_client.publish("lamp_network/mode_request", "{\"mode\":\"0\",\"id_mask\":255}")
+        mqtt_client.publish("lamp_network/mode_request_feedback", "{\"mode\":\"0\",\"id_mask\":255}")
         print("Switching lamp OFF")
     return True, state
 
@@ -48,7 +48,7 @@ def set_color(did, r, g, b):
     print(did, 'Red: ', r, 'Green: ', g, 'Blue : ', b)
 
     message = json.dumps({'R': r, 'G': g, 'B': b, 'id_mask': 255})
-    mptt_client.publish("lamp_network/light_color", message)
+    mqtt_client.publish("lamp_network/light_color", message)
 
     return True
 
@@ -83,8 +83,8 @@ callbacks = {
 if __name__ == '__main__':
 
     print("connecting to broker ")
-    mptt_client.connect("192.168.0.41",1883)#("localhost",1883)#connect
-    mptt_client.loop_start() #start loop to process received messages
+    mqtt_client.connect("192.168.0.41",1883)#("localhost",1883)#connect
+    mqtt_client.loop_start() #start loop to process received messages
 
     loop = asyncio.get_event_loop()
     client = SinricPro(APP_KEY, [LIGHT_ID], callbacks, enable_log=True, restore_states=False, secretKey=APP_SECRET)
